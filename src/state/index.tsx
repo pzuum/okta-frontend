@@ -1,7 +1,6 @@
-import { createContext, useCallback, useReducer, useState } from "react";
+import { createContext, useCallback, useState } from "react";
 import { OAuth } from "../shared/oAuth";
 import { OAuthTypes } from "./types";
-import { redirect } from "react-router-dom";
 
 
 const OauthState = createContext<OAuthTypes>({
