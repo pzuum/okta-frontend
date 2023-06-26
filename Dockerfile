@@ -18,8 +18,13 @@ RUN yarn install --frozen-lockfile
 # Bundle app source
 COPY --chown=node:node . .
 
+
+
 # Use the node user from the image (instead of the root user)
 USER node
+
+COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 
 CMD [ "npm", "run", "dev" ]
 
