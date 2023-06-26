@@ -1,16 +1,14 @@
 /** example of react router */
 
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Home, About, Contact } from '../pages';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Login } from '../pages/login';
 
 const AppRouter = () => {
     return (
         <Router>
-            <Switch>
-                <Route exact path="/" component={Home} />
-                <Route exact path="/about" component={About} />
-                <Route exact path="/contact" component={Contact} />
-            </Switch>
+            <Routes>
+                <Route  path="/" Component={Login} />
+            </Routes>
         </Router>
     );
 }
