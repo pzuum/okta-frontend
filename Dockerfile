@@ -58,4 +58,4 @@ COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 
 # Start the server using the production buil
-CMD [ "node", "dist/main.js" ]
+CMD [ "npm", "run", "dev" ]
