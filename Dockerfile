@@ -18,6 +18,13 @@ RUN yarn install --frozen-lockfile
 # Bundle app source
 COPY --chown=node:node . .
 
+# Use the node user from the image (instead of the root user)
+USER node
+
+###################
+# BUILD FOR PRODUCTION
+###################
+
 FROM node:18-alpine As build
 
 WORKDIR /usr/src/app
@@ -44,19 +51,12 @@ USER node
 # PRODUCTION
 ###################
 
+FROM node:18-alpine As production
 
-
-
-# Use the node user from the image (instead of the root user)
-USER node
-
+# Copy the bundled code from the build stage to the production image
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 
+# Start the server using the production buil
 CMD [ "npm", "run", "dev" ]
-
-
-###################
-# BUILD FOR PRODUCTION
-###################
 
