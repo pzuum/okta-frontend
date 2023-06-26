@@ -1,10 +1,10 @@
 
 import './App.css'
-import { Login } from './Login'
+import AppRouter from './router'
 
 function App() {
 
-  return <Login />
+  return <AppRouter />
 }
 
 export default App
