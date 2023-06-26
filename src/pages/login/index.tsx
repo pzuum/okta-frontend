@@ -1,4 +1,30 @@
+import { useContext } from "react";
+import { redirect } from "react-router-dom";
+import { OAuth } from "../../shared/oAuth";
+import { API } from "../../shared/api";
+import { OauthState } from "../../state";
+
 export function Login( ): JSX.Element {
+
+    const { queryState, verifier } = useContext(OauthState);
+
+
+    
+
+    const handleOAuthLogin = async (provider: string) => {
+        const codeChallenge = await OAuth.generateCodeChallenge(verifier as string);
+        const url = API.generateLoginURL(
+            queryState as string,
+            codeChallenge,
+            provider
+        )
+        redirect(url);
+        
+    };
+
+    
+
+
     return <>
         <div className="login-layout center">
 
@@ -16,11 +42,11 @@ export function Login( ): JSX.Element {
                 </div>
 
                 <div className='center container'>
-                    <button className='button horizontal-center mt-5'>google</button>
+                    <button className='button horizontal-center mt-5' onClick={() => handleOAuthLogin('google')}>google</button>
                 </div>
 
                 <div className='center container'>
-                    <button className='button horizontal-center mt-5'>okta</button>
+                    <button className='button horizontal-center mt-5' onClick={() => handleOAuthLogin('Okta')}>okta</button>
                 </div>
 
                 <div className='center container'>
