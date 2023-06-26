@@ -14,9 +14,20 @@ export function Login( ): JSX.Element {
                     <label htmlFor="password" className='input-label'>Password</label>
                     <input type="password" aria-label='password' className='line input' />
                 </div>
+
+                <div className='center container'>
+                    <button className='button horizontal-center mt-5'>google</button>
+                </div>
+
+                <div className='center container'>
+                    <button className='button horizontal-center mt-5'>okta</button>
+                </div>
+
                 <div className='center container'>
                     <button className='button horizontal-center mt-5'>Login</button>
                 </div>
+
+
             </div>
 
         </div>
