@@ -1,12 +1,51 @@
+import OktaAuth from "@okta/okta-auth-js";
+
 export class OAuth {
-    /** Before sending requests use this to generate a codeVerifier that will work to make sure that the request is safe
-     * this will be used again when requesting the token */
+    
+
+    static okta: OktaAuth;
+
+    static init() {
+        console.log(import.meta.env.VITE_OKTA_ISSUER)
+        console.log(import.meta.env.VITE_OKTA_CLIENT_ID)
+        console.log(import.meta.env.VITE_REDIRECT_URI)
+
+
+           this.okta = new OktaAuth({
+               pkce: true,
+               issuer: import.meta.env.VITE_OKTA_ISSUER + '/oauth2/default',
+               clientId: import.meta.env.VITE_OKTA_CLIENT_ID,
+               redirectUri: import.meta.env.VITE_REDIRECT_URI,
+               scopes: ['openid', 'email', 'profile'],
+
+
+               
+               
+            });
+        
+    }
+
+    static  async fetchToken() {
+        return this.okta.token.getWithRedirect({
+            responseType: ['token', 'id_token'],
+            state: this.generateState(),
+        })
+    }
+
+    static getToken() {
+        return this.okta.token.parseFromUrl()
+    }
+
+    static async fetchUserInfo() {
+        return this.okta.token.getUserInfo()
+    }
      
-    static generateCodeVerifier() {
-        const codeVerifier = window.btoa(window.crypto.getRandomValues(new Uint8Array(32)).toString());
-
-        return codeVerifier;
-
+    static async generateCodeVerifier() {
+        if (!this.okta) this.init()
+        if (!this.okta.pkce) throw new Error('pkce is not enabled')
+        console.log(this.okta)
+        return this.okta.pkce.generateVerifier('')
+        
     }
 
     /** Before sending requests use this to generate a codeChallenge based on the code verifier that will work to make sure that the request is safe
@@ -14,13 +53,29 @@ export class OAuth {
      * @example https://{baseurl}/{provider}/?code_challenge={codeChallenge}...
      */
     static async generateCodeChallenge(codeVerifier: string) {
-        const codeChallenge = window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier)).then((buffer) => {
-            return window.btoa(String.fromCharCode(...new Uint8Array(buffer)));
-        });
+        return this.okta.pkce.computeChallenge(codeVerifier)
+
+        
 
 
-        return codeChallenge;
+        
 
+    }
+
+    static async authorize(codeVerifier: string) {
+        const codeChallenge = await this.generateCodeChallenge(codeVerifier)
+        this.okta.token.getWithRedirect({
+            responseType: 'code',
+            scopes: ['openid', 'email', 'profile'],
+            state: this.generateState(),
+            codeChallenge,
+            codeChallengeMethod: 'S256',
+            redirectUri: import.meta.env.VITE_REDIRECT_URI,
+            responseMode: 'query',
+            pkce: true,
+            clientId: import.meta.env.VITE_OKTA_CLIENT_ID,
+            issuer: import.meta.env.VITE_OKTA_ISSUER,                        
+        })
     }
 
     
@@ -29,9 +84,8 @@ export class OAuth {
      * @example https://{baseurl}/{provider}/?state={stateValue}...
     */
     static generateState() {
-        const state = window.btoa(window.crypto.getRandomValues(new Uint8Array(32)).toString());
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
-        return state;
 
     }
     
@@ -54,3 +108,5 @@ export class OAuth {
 
     }
 }
+
+

@@ -1,49 +1,59 @@
-/** callback url react page */
+import { IdxStatus, hasAuthorizationCode, hasErrorInUrl, hasInteractionCode } from "@okta/okta-auth-js";
+import { useEffect } from "react";
+import { useIdxTransaction } from "../../state";
+import { useNavigate } from "react-router";
+import { useOktaAuth } from "@okta/okta-react";
 
-import { useEffect, useContext } from "react";
-import { redirect, useLocation } from "react-router-dom";
-import { OAuth } from "../../shared/oAuth";
-import { API } from "../../shared/api";
-import { OauthState } from "../../state";
+export const LoginCallback = () => {
+  const navigate = useNavigate();
+  const { setTransaction } = useIdxTransaction();
+  const { oktaAuth } = useOktaAuth();
 
-
-export function Callback(): JSX.Element {
-    
-        const location = useLocation();
-
-        const {
-            verifier,
-            
-        } = useContext(OauthState);
-    
-        useEffect(() => {
-            const run = async () => {
-
-                const params = new URLSearchParams(location.search);
-                const code = params.get('code');
-                const state = params.get('state');
-                const provider = params.get('provider');
-                
-                if (code && state && provider) {
-                    const valid = OAuth.validateState(state);
-                if (!valid) {
-                    console.error('invalid state');
-                    redirect('/');
-                }
-                
-                
-                const data = await API.sendTokenRequest(code, verifier as string);
-                console.log(data)
-                if (data) {
-                    redirect('/home');
-                }
-            } else {
-                console.error('missing code or state');
-                redirect('/');
-            }
+  useEffect(() => {
+    const parseFromUrl = async () => {
+      try {
+        if (hasInteractionCode(window.location.search)) {
+          await oktaAuth.idx.handleInteractionCodeRedirect(window.location.href);
+        } else if (hasAuthorizationCode(window.location.search)) {
+          await oktaAuth.handleLoginRedirect();
+        } else {
+          throw new Error('Unable to parse url');
         }
-        run()
-        }, [location.search])
+        navigate('/');
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (hasErrorInUrl(window.location.search)) {
+      const url = new URL(window.location.href);
+      const error = new Error(`${url.searchParams.get('error')}: ${url.searchParams.get('error_description')}`);
+      setTransaction({
+        status: IdxStatus.FAILURE,
+        error
+      });
+      return;
+    } else if(oktaAuth.isLoginRedirect()) {
+      return parseFromUrl();
+    }
     
-        return <></>
+    const handleEmailVerifyCallback = async () => {
+      try {
+        const newTransaction = await oktaAuth.idx.handleEmailVerifyCallback(window.location.search);
+        setTransaction(newTransaction);
+      } catch (error) {
+        setTransaction({
+          status: IdxStatus.FAILURE,
+          error
+        });
+      } finally {
+        navigate('/');
+      }
+    };
+
+    if (oktaAuth.idx.isEmailVerifyCallback(window.location.search)) {
+      return handleEmailVerifyCallback();
+    }
+    
+  }, [oktaAuth, setTransaction, navigate]);
 }
