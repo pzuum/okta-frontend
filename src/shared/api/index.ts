@@ -1,7 +1,7 @@
 export class API {
     
-    static sendTokenRequest(code: string, codeVerifier: string) {
-        const url = process.env.TOKEN_URL as string;
+    static sendTokenRequest(code: string, provider: string) {
+        const url = `http://${import.meta.env.VITE_AUTHORIZE_URI}/token/${provider}`;
         const response = fetch(url, {
             method: 'POST',
             headers: {
@@ -9,14 +9,17 @@ export class API {
             },
             body: JSON.stringify({
                 authorizationCode: code,
-                codeVerifier: codeVerifier
+                codeVerifier: localStorage.getItem('verifier'),
+                state: localStorage.getItem('queryState')
             })
         });
         return response;
     }
 
-    static generateLoginURL(state: string, codeChallenge: string, provider: string) {
-        return `https://${process.env.REDIRECT_URI}/login/${provider}/?state=${state}&codeChallenge=${codeChallenge}` as string;
-        
+    static generateLoginURL(state: string, codeChallenge: string, provider: string, code: string) {
+        console.log({
+            code,
+        })
+        return `http://${import.meta.env.VITE_AUTHORIZE_URI}/login/${provider}/?state=${state}&codeChallenge=${codeChallenge}&code=${code}` as string;
     }
 }

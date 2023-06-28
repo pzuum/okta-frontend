@@ -1,49 +1,35 @@
 /** callback url react page */
 
-import { useEffect, useContext } from "react";
+import { Profiler, ProfilerOnRenderCallback, useEffect } from "react";
 import { redirect, useLocation } from "react-router-dom";
 import { OAuth } from "../../shared/oAuth";
 import { API } from "../../shared/api";
-import { OauthState } from "../../state";
 
+const onRender: ProfilerOnRenderCallback = (id, phase, actualDuration, baseDuration, startTime, commitTime) => {
+    console.log(id, phase, actualDuration, baseDuration, startTime, commitTime)
+}
 
 export function Callback(): JSX.Element {
-    
         const location = useLocation();
-
-        const {
-            verifier,
-            
-        } = useContext(OauthState);
-    
         useEffect(() => {
             const run = async () => {
-
                 const params = new URLSearchParams(location.search);
                 const code = params.get('code');
-                const state = params.get('state');
-                const provider = params.get('provider');
-                
-                if (code && state && provider) {
-                    const valid = OAuth.validateState(state);
-                if (!valid) {
-                    console.error('invalid state');
-                    redirect('/');
+                const isValidState = OAuth.validateState();
+                if (!isValidState) {
+                    redirect('/?error=invalid_state');
+                    return;
                 }
-                
-                
-                const data = await API.sendTokenRequest(code, verifier as string);
-                console.log(data)
-                if (data) {
-                    redirect('/home');
-                }
-            } else {
-                console.error('missing code or state');
-                redirect('/');
-            }
+                const provider = location.pathname.split('/')[2].split('?')[0];
+                await API.sendTokenRequest(code as string, provider);
         }
-        run()
-        }, [location.search])
+        
+        if (location.pathname.includes('callback') && location.search.includes('code'))
+            run()
+        }, [])
     
-        return <></>
+        return <Profiler id="Callback" onRender={onRender}>
+            
+            <></>
+            </Profiler>
 }
