@@ -10,11 +10,8 @@ const onRender: ProfilerOnRenderCallback = (id, phase, actualDuration, baseDurat
 
 function App() {
 
-  return <Profiler id="StateProvider" onRender={onRender}>
-
-  
+  return <Profiler id="StateProvider" onRender={onRender}>  
   <StateProvider>
-
       <AppRouter />
   </StateProvider>
   </Profiler>

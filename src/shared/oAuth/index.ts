@@ -4,7 +4,7 @@ export class OAuth {
      * this will be used again when requesting the token */
      
     static generateCodeVerifier() {
-        const codeVerifier = window.btoa(window.crypto.getRandomValues(new Uint8ClampedArray(16)).toString());
+        const codeVerifier = window.btoa(window.crypto.getRandomValues(new Uint8ClampedArray(10)).toString());
         const replaced = codeVerifier.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
         
         return replaced;

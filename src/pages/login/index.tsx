@@ -6,14 +6,9 @@ export function Login( ): JSX.Element {
 
     const { renewVerifier } = useContext(OauthState);
 
-    
-
     const handleOAuthLogin = async () => {
         renewVerifier();        
     };
-
-    
-
 
     return <>
         <div className="login-layout center">

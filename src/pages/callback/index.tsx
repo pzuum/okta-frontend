@@ -21,7 +21,13 @@ export function Callback(): JSX.Element {
                     return;
                 }
                 const provider = location.pathname.split('/')[2].split('?')[0];
-                await API.sendTokenRequest(code as string, provider);
+
+               const response =  await API.sendTokenRequest(code as string, provider);
+                if (response.status === 200) {
+                    response.json().then((data) => {
+                        console.log(data);
+                    })
+                }
         }
         
         if (location.pathname.includes('callback') && location.search.includes('code'))
