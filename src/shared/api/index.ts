@@ -2,7 +2,7 @@ import { USER_TYPE_ENUM } from "./type";
 
 export class API {
     
-    static sendTokenRequest(code: string, provider: string, type: `${USER_TYPE_ENUM}` = USER_TYPE_ENUM.FLEET_MANAGER) {
+    static sendTokenRequest(code: string, provider: string, type: `${USER_TYPE_ENUM}` = USER_TYPE_ENUM.BROKER) {
         const url = `http://${import.meta.env.VITE_AUTHORIZE_URI}/token/${provider}`;
         const response = fetch(url, {
             method: 'POST',

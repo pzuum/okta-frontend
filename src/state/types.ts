@@ -5,7 +5,7 @@ export type OAuthTypes = {
     verifier?: string;
     setVerifier?: (verifier: string) => void
     setQueryState?: (queryState: string) => void
-    renewVerifier: () => void
+    renewVerifier: (provider: string) => void
     profile?: ProfileProps
     setProfile?: (profile: ProfileProps) => void
 }

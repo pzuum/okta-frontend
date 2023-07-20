@@ -6,7 +6,7 @@ import { ProfileProps } from "../pages/profile/types";
 
 
 const OauthState = createContext<OAuthTypes>({
-    renewVerifier: () => {
+    renewVerifier: (provider: string) => {
         void 0;
     },
 });
@@ -17,13 +17,15 @@ const StateProvider = ({ children }: { children: React.ReactNode }) => {
     const [queryState, setQueryState] = useState('');
     const [verifier, setVerifier] = useState('');
     const [profile, setProfile] = useState<ProfileProps>(null);
+    const [provider, setProvider] = useState('');
     
     const [shouldRenew, setShouldRenew] = useState(false);
 
-    const renewVerifier = useCallback(() => {
+    const renewVerifier = useCallback((currentProvider: string) => {
         setVerifier(OAuth.generateCodeVerifier());
         setQueryState(OAuth.generateState());
         setShouldRenew(true);
+        setProvider(currentProvider);
     }, [])
 
     
@@ -38,7 +40,7 @@ const StateProvider = ({ children }: { children: React.ReactNode }) => {
                 const url = API.generateLoginURL(
                     queryState as string,
                     codeChallenge,
-                    'Okta',
+                    provider,
                     verifier
                 )
             

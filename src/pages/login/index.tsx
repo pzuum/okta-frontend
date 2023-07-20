@@ -6,8 +6,8 @@ export function Login( ): JSX.Element {
 
     const { renewVerifier } = useContext(OauthState);
 
-    const handleOAuthLogin = async () => {
-        renewVerifier();        
+    const handleOAuthLogin = async (provider: string) => {
+        renewVerifier(provider);        
     };
 
     return <>
@@ -25,11 +25,11 @@ export function Login( ): JSX.Element {
                     <input type="password" aria-label='password' className='line input' />
                 </div>
                 <div className='center container'>
-                    <button className='button horizontal-center mt-5' onClick={() => handleOAuthLogin()}>google</button>
+                    <button className='button horizontal-center mt-5' onClick={() => handleOAuthLogin('Google')}>google</button>
                 </div>
 
                 <div className='center container'>
-                    <button className='button horizontal-center mt-5' onClick={() => handleOAuthLogin()}>okta</button>
+                    <button className='button horizontal-center mt-5' onClick={() => handleOAuthLogin('Okta')}>okta</button>
                 </div>
 
                 <div className='center container'>
